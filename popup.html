@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS-ICTU Solver Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+        integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="logo-container">
+                <i class="fa-solid fa-robot logo-icon"></i>
+                <div class="title-container">
+                    <h1>LMS SOLVER</h1>
+                    <span class="version-badge">v3.0</span>
+                </div>
+            </div>
+            <div id="userGreeting" class="user-greeting">
+                <span id="userName">Xin chào</span>
+                <i class="fa-solid fa-user-circle"></i>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="action-panel">
+                <button id="autoSolveBtn" class="primary-btn">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Giải ngay</span>
+                </button>
+                
+                <div class="options-group">
+                    <div class="toggle-option">
+                        <input type="checkbox" id="autoFillToggle" class="toggle-input">
+                        <label for="autoFillToggle" class="toggle-label">
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-text">Tự động điền</span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-option">
+                        <input type="checkbox" id="autoSubmitToggle" class="toggle-input">
+                        <label for="autoSubmitToggle" class="toggle-label">
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-text">Tự động nộp</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-panel">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-lightbulb"></i> Kết quả</h2>
+                    <div class="result-actions">
+                        <button id="copyBtn" class="icon-btn" title="Sao chép đáp án">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                        <button id="shareBtn" class="icon-btn" title="Chia sẻ đáp án">
+                            <i class="fa-solid fa-share-nodes"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+                    <div class="loader"></div>
+                    <p>Đang giải bài tập...</p>
+                </div>
+                
+                <div id="result" class="result-container">
+                    <div class="empty-state">
+                        <i class="fa-solid fa-robot empty-icon"></i>
+                        <p>Nhấn "Giải ngay" để bắt đầu</p>
+                    </div>
+                </div>
+                
+                <div id="error-message" class="error-message" style="display: none;"></div>
+            </div>
+
+            <div class="stats-panel">
+                <div class="stat-item">
+                    <i class="fa-solid fa-check-circle"></i>
+                    <div class="stat-info">
+                        <span id="solvedCount" class="stat-value">0</span>
+                        <span class="stat-label">Đã giải</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <i class="fa-solid fa-clock"></i>
+                    <div class="stat-info">
+                        <span id="averageTime" class="stat-value">0s</span>
+                        <span class="stat-label">Thời gian</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <i class="fa-solid fa-bolt"></i>
+                    <div class="stat-info">
+                        <span id="accuracy" class="stat-value">0%</span>
+                        <span class="stat-label">Chính xác</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="history-panel">
+                <div class="panel-header collapsible" id="historyHeader">
+                    <h2><i class="fa-solid fa-history"></i> Lịch sử</h2>
+                    <i class="fa-solid fa-chevron-down toggle-icon"></i>
+                </div>
+                <div class="collapsible-content" id="historyContent" style="display: none;">
+                    <div class="history-list" id="historyItems">
+                        <!-- Lịch sử sẽ được hiển thị ở đây dưới dạng thẻ card thay vì bảng -->
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="footer-actions">
+                <button id="settingsBtn" class="footer-btn">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+                <button id="helpBtn" class="footer-btn">
+                    <i class="fa-solid fa-circle-question"></i>
+                </button>
+                <button id="reportBtn" class="footer-btn">
+                    <i class="fa-solid fa-bug"></i>
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal Cài đặt -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-gear"></i> Cài đặt</h3>
+                <button class="close-modal"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h4>Theme</h4>
+                    <div class="theme-selector">
+                        <div class="theme-option" data-theme="light">
+                            <div class="theme-preview light-theme"></div>
+                            <span>Sáng</span>
+                        </div>
+                        <div class="theme-option" data-theme="dark">
+                            <div class="theme-preview dark-theme"></div>
+                            <span>Tối</span>
+                        </div>
+                        <div class="theme-option" data-theme="blue">
+                            <div class="theme-preview blue-theme"></div>
+                            <span>Xanh</span>
+                        </div>
+                        <div class="theme-option" data-theme="purple">
+                            <div class="theme-preview purple-theme"></div>
+                            <span>Tím</span>
+                        </div>
+                        <div class="theme-option" data-theme="green">
+                            <div class="theme-preview green-theme"></div>
+                            <span>Lục</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h4>Tùy chọn hiển thị</h4>
+                    <div class="setting-item">
+                        <label for="fontSizeSelect">Cỡ chữ</label>
+                        <select id="fontSizeSelect" class="select-input">
+                            <option value="small">Nhỏ</option>
+                            <option value="medium" selected>Vừa</option>
+                            <option value="large">Lớn</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h4>Tùy chọn nâng cao</h4>
+                    <div class="setting-item">
+                        <label for="apiKeyInput">API Key (nếu có)</label>
+                        <input type="password" id="apiKeyInput" class="text-input" placeholder="Nhập API key nếu có">
+                    </div>
+                    <div class="setting-item">
+                        <label for="autoSaveToggle">Tự động lưu lịch sử</label>
+                        <input type="checkbox" id="autoSaveToggle" class="toggle-input" checked>
+                        <label for="autoSaveToggle" class="toggle-label small">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="saveSettingsBtn" class="primary-btn">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+// Theme Selection
+document.addEventListener('DOMContentLoaded', function() {
+    // Theme handling
+    const themeOptions = document.querySelectorAll('.theme-option');
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    
+    // Set initial theme
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    
+    // Mark active theme
+    themeOptions.forEach(option => {
+        if(option.dataset.theme === savedTheme) {
+            option.classList.add('active');
+        }
+        
+        option.addEventListener('click', function() {
+            const selectedTheme = this.dataset.theme;
+            document.documentElement.setAttribute('data-theme', selectedTheme);
+            localStorage.setItem('theme', selectedTheme);
+            
+            // Update active state
+            themeOptions.forEach(opt => opt.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+    
+    // Toggle settings modal
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsModal = document.getElementById('settingsModal');
+    const closeModalBtn = document.querySelector('.close-modal');
+    
+    settingsBtn.addEventListener('click', function() {
+        settingsModal.style.display = 'block';
+    });
+    
+    closeModalBtn.addEventListener('click', function() {
+        settingsModal.style.display = 'none';
+    });
+    
+    window.addEventListener('click', function(event) {
+        if (event.target === settingsModal) {
+            settingsModal.style.display = 'none';
+        }
+    });
+    
+    // Font size handling
+    const fontSizeSelect = document.getElementById('fontSizeSelect');
+    const savedFontSize = localStorage.getItem('fontSize') || 'medium';
+    
+    fontSizeSelect.value = savedFontSize;
+    document.body.classList.add('font-' + savedFontSize);
+    
+    fontSizeSelect.addEventListener('change', function() {
+        const selectedSize = this.value;
+        document.body.classList.remove('font-small', 'font-medium', 'font-large');
+        document.body.classList.add('font-' + selectedSize);
+        localStorage.setItem('fontSize', selectedSize);
+    });
+    
+    // Toggle History Panel
+    const historyHeader = document.getElementById('historyHeader');
+    const historyContent = document.getElementById('historyContent');
+    
+    historyHeader.addEventListener('click', function() {
+        const isOpen = historyContent.style.display !== 'none';
+        historyContent.style.display = isOpen ? 'none' : 'block';
+        const toggleIcon = this.querySelector('.toggle-icon');
+        toggleIcon.classList.toggle('open', !isOpen);
+    });
+    
+    // Auto toggle switches
+    const autoFillToggle = document.getElementById('autoFillToggle');
+    const autoSubmitToggle = document.getElementById('autoSubmitToggle');
+    const autoSaveToggle = document.getElementById('autoSaveToggle');
+    
+    // Load saved preferences
+    autoFillToggle.checked = localStorage.getItem('autoFill') === 'true';
+    autoSubmitToggle.checked = localStorage.getItem('autoSubmit') === 'true';
+    autoSaveToggle.checked = localStorage.getItem('autoSave') !== 'false';
+    
+    // Save toggle states
+    autoFillToggle.addEventListener('change', function() {
+        localStorage.setItem('autoFill', this.checked);
+    });
+    
+    autoSubmitToggle.addEventListener('change', function() {
+        localStorage.setItem('autoSubmit', this.checked);
+    });
+    
+    autoSaveToggle.addEventListener('change', function() {
+        localStorage.setItem('autoSave', this.checked);
+    });
+    
+    // Save settings button
+    document.getElementById('saveSettingsBtn').addEventListener('click', function() {
+        const apiKey = document.getElementById('apiKeyInput').value;
+        if (apiKey) {
+            localStorage.setItem('apiKey', apiKey);
+        }
+        settingsModal.style.display = 'none';
+        // Hiển thị thông báo lưu thành công
+        showAlert('Đã lưu cài đặt thành công!', 'success');
+    });
+    
+    // Load API Key if saved
+    const savedApiKey = localStorage.getItem('apiKey');
+    if (savedApiKey) {
+        document.getElementById('apiKeyInput').value = savedApiKey;
+    }
+    
+    // Simulated solve button action
+    document.getElementById('autoSolveBtn').addEventListener('click', function() {
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const resultContainer = document.getElementById('result');
+        
+        loadingIndicator.style.display = 'flex';
+        resultContainer.style.display = 'none';
+        
+        // Simulate processing time
+        setTimeout(function() {
+            loadingIndicator.style.display = 'none';
+            resultContainer.style.display = 'block';
+            
+            // Example result display (in real app, this would be the actual result)
+            resultContainer.innerHTML = `
+                <div class="answer-container">
+                    <div class="answer-item">
+                        <span class="answer-label">Câu 1:</span>
+                        <span class="answer-value">Đáp án A</span>
+                    </div>
+                    <div class="answer-item">
+                        <span class="answer-label">Câu 2:</span>
+                        <span class="answer-value">Đáp án C</span>
+                    </div>
+                    <div class="answer-item">
+                        <span class="answer-label">Câu 3:</span>
+                        <span class="answer-value">Đáp án B</span>
+                    </div>
+                </div>
+            `;
+            
+            // Update stats (simulated)
+            updateStats();
+            
+            // Add to history
+            if (autoSaveToggle.checked) {
+                addHistoryItem('Bài tập ABC', 'Đúng 3/3');
+            }
+        }, 1500);
+    });
+    
+    // Update stats function (simulated)
+    function updateStats() {
+        // Get current stats
+        let solvedCount = parseInt(document.getElementById('solvedCount').textContent) || 0;
+        
+        // Update values
+        document.getElementById('solvedCount').textContent = solvedCount + 1;
+        document.getElementById('averageTime').textContent = '1.5s';
+        document.getElementById('accuracy').textContent = '100%';
+    }
+    
+    // Add history item
+    function addHistoryItem(title, result) {
+        const historyItems = document.getElementById('historyItems');
+        const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        historyItem.innerHTML = `
+            <div class="history-item-header">
+                <span class="history-item-title">${title}</span>
+                <span class="history-item-time">${timestamp}</span>
+            </div>
+            <div class="history-item-result">${result}</div>
+            <div class="history-item-actions">
+                <button class="history-btn"><i class="fa-regular fa-copy"></i> Sao chép</button>
+                <button class="history-btn"><i class="fa-solid fa-trash"></i> Xóa</button>
+            </div>
+        `;
+        
+        historyItems.prepend(historyItem);
+    }
+    
+    // Copy and Share buttons
+    document.getElementById('copyBtn').addEventListener('click', function() {
+        const resultText = document.getElementById('result').innerText;
+        if (resultText && !resultText.includes('Nhấn "Giải ngay" để bắt đầu')) {
+            navigator.clipboard.writeText(resultText)
+                .then(() => showAlert('Đã sao chép kết quả!', 'success'))
+                .catch(() => showAlert('Không thể sao chép kết quả', 'error'));
+        }
+    });
+    
+    document.getElementById('shareBtn').addEventListener('click', function() {
+        showAlert('Đã chia sẻ kết quả!', 'success');
+    });
+    
+    // Alert function
+    function showAlert(message, type = 'info') {
+        const alertElement = document.createElement('div');
+        alertElement.className = `alert alert-${type}`;
+        alertElement.textContent = message;
+        
+        document.body.appendChild(alertElement);
+        
+        setTimeout(() => {
+            alertElement.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            alertElement.classList.remove('show');
+            setTimeout(() => {
+                alertElement.remove();
+            }, 300);
+        }, 2000);
+    }
+    
+    // User name display
+    document.getElementById('userName').textContent = 'Xin chào, Bạn!';
+});
+    </script>
+</body>
+
+</html>
